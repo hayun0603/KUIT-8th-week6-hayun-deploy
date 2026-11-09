@@ -3,19 +3,37 @@ import BackBar from "../../components/BackBar.tsx";
 import InfoStore from "../../components/InfoStore.tsx";
 import MenuItem from "../../components/MenuItem.tsx";
 import OrderBar from "../../components/OrderBar/OrderBar.tsx";
-import type { Store as StoreType } from "../../types/stores.ts";
+import { useQuery } from "@tanstack/react-query";
+import { getStore } from "../../api/stores";
 
-interface StoreProps {
-    stores: StoreType[];
-}
-
-const Store = ({ stores }: StoreProps) => {
+const Store = () => {
     const { storeId } = useParams();
-    const store = stores.find((store) => store.id === Number(storeId));
 
-    if (!store) {
+    const {
+        data: store,
+        isPending,
+        isError,
+    } = useQuery({
+        queryKey: ["store", storeId],
+        queryFn: () => getStore(Number(storeId)),
+        retry: false,
+    });
+
+
+    if (isPending) {
         return (
-            <div className="mt-[330px] flex flex-col mx-auto w-[390px] h-[200px] items-center justify-center text-center">
+            <p
+                aria-live="polite"
+                className="px-6 py-10 text-center text-[15px] text-[#6b7684]"
+            >
+                가게 목록을 불러오는 중입니다.
+            </p>
+        )
+    }
+
+    if (isError) {
+        return (
+            <div className="h-screen flex flex-col mx-auto w-[390px] h-[200px] items-center justify-center text-center">
                 <div className="flex text-[22px] h-[100px] items-center text-[#696969]">
                     해당 가게를 찾을 수 없습니다.
                 </div>
@@ -23,24 +41,23 @@ const Store = ({ stores }: StoreProps) => {
                     가게 목록 보기
                 </Link>
             </div>
-        
         );
     }
 
-	return (
+    return (
         <main className="mx-auto mt-[41px] mb-[77px] w-[390px]">
             <BackBar orderCancel={false} />
-            <InfoStore store={store}/>
+            <InfoStore store={store} />
             <div className="h-[56px] p-[26px_0_11px_24px] text-[17px] text-[#6B7684] font-semibold border-t border-[#E5E8EB]">
                 샐러드
             </div>
             <MenuItem
-                storeId = {store.id}
+                storeId={store.id}
                 menus={store.menus ?? []}
             />
-            <OrderBar/>
+            <OrderBar />
         </main>
-	);
+    );
 };
 
 export default Store;
