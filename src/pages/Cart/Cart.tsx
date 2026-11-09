@@ -72,7 +72,7 @@ const Cart = () => {
 		return <div>가게 정보를 불러오지 못했습니다.</div>
 	}
 
-	const isPaymentDisabled = isExpired || orderPrice < store.minDeliveryPrice;
+	// const isPaymentDisabled = isExpired || orderPrice < store.minDeliveryPrice;
 
 	const order = {
 		storeId,
